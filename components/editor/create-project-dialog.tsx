@@ -11,14 +11,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useProjectDialogsContext } from "@/components/editor/project-dialogs-provider";
-import { slugify } from "@/lib/slug";
 
 export function CreateProjectDialog() {
-  const { dialog, name, setName, isLoading, closeDialog, createProject } =
+  const { dialog, name, setName, isLoading, roomId, closeDialog, createProject } =
     useProjectDialogsContext();
 
   const isOpen = dialog?.type === "create";
-  const slugPreview = slugify(name);
 
   return (
     <Dialog
@@ -50,7 +48,7 @@ export function CreateProjectDialog() {
               aria-label="Project name"
             />
             <p className="px-1 text-xs text-copy-muted">
-              {slugPreview || "your-project-slug"}
+              {roomId || "your-room-id"}
             </p>
           </div>
 

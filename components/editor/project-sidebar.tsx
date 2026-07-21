@@ -12,20 +12,23 @@ import {
 import { useProjectDialogsContext } from "@/components/editor/project-dialogs-provider";
 import { ProjectListItem } from "@/components/editor/project-list-item";
 import { cn } from "@/lib/utils";
+import type { Project } from "@/types/project";
 
 interface ProjectSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  ownedProjects: Project[];
+  sharedProjects: Project[];
 }
 
-export function ProjectSidebar({ isOpen, onClose }: ProjectSidebarProps) {
-  const { projects, openCreateDialog, openRenameDialog, openDeleteDialog } =
+export function ProjectSidebar({
+  isOpen,
+  onClose,
+  ownedProjects,
+  sharedProjects,
+}: ProjectSidebarProps) {
+  const { openCreateDialog, openRenameDialog, openDeleteDialog } =
     useProjectDialogsContext();
-
-  const ownedProjects = projects.filter((project) => project.role === "owner");
-  const sharedProjects = projects.filter(
-    (project) => project.role === "collaborator"
-  );
 
   return (
     <>
