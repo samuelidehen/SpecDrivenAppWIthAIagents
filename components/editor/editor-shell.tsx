@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { CreateProjectDialog } from "@/components/editor/create-project-dialog";
@@ -21,7 +22,10 @@ export function EditorShell({
   ownedProjects,
   sharedProjects,
 }: EditorShellProps) {
+  const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const activeProjectId = pathname.match(/^\/editor\/([^/]+)$/)?.[1];
 
   return (
     <ProjectDialogsProvider>
@@ -35,6 +39,7 @@ export function EditorShell({
           onClose={() => setIsSidebarOpen(false)}
           ownedProjects={ownedProjects}
           sharedProjects={sharedProjects}
+          activeProjectId={activeProjectId}
         />
         <main className="flex-1 overflow-hidden">{children}</main>
 
