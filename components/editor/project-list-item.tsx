@@ -3,23 +3,41 @@
 import { FolderKanban, Pencil, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { Project } from "@/types/project";
 
 interface ProjectListItemProps {
   project: Project;
+  isActive?: boolean;
   onRename: () => void;
   onDelete: () => void;
 }
 
 export function ProjectListItem({
   project,
+  isActive = false,
   onRename,
   onDelete,
 }: ProjectListItemProps) {
   return (
-    <div className="group flex items-center gap-2 rounded-xl px-2 py-2 hover:bg-elevated">
-      <FolderKanban className="h-4 w-4 shrink-0 text-copy-muted" />
-      <span className="flex-1 truncate text-sm text-copy-primary">
+    <div
+      className={cn(
+        "group flex items-center gap-2 rounded-xl px-2 py-2 hover:bg-elevated",
+        isActive && "bg-accent-dim"
+      )}
+    >
+      <FolderKanban
+        className={cn(
+          "h-4 w-4 shrink-0",
+          isActive ? "text-brand" : "text-copy-muted"
+        )}
+      />
+      <span
+        className={cn(
+          "flex-1 truncate text-sm",
+          isActive ? "text-brand" : "text-copy-primary"
+        )}
+      >
         {project.name}
       </span>
       {project.role === "owner" && (
