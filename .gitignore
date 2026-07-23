@@ -1,5 +1,5 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
+# read this file , update @context/progress-tracker.md and implement exactly as specified.
 # dependencies
 /node_modules
 /.pnp

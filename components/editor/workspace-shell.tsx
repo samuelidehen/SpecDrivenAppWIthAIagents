@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { AiSidebar } from "@/components/editor/ai-sidebar";
+import { CanvasRoom } from "@/components/editor/canvas-room";
 import { ShareDialog } from "@/components/editor/share-dialog";
 import { WorkspaceNavbar } from "@/components/editor/workspace-navbar";
 import { useCollaborators } from "@/hooks/use-collaborators";
@@ -42,8 +43,8 @@ export function WorkspaceShell({
       />
 
       <div className="relative flex flex-1 overflow-hidden">
-        <div className="flex flex-1 items-center justify-center bg-base">
-          <p className="text-sm text-copy-muted">Canvas coming soon.</p>
+        <div className="flex-1 bg-base">
+          <CanvasRoom projectId={projectId} />
         </div>
 
         <AiSidebar
