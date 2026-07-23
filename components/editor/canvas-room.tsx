@@ -7,6 +7,8 @@ import { Canvas } from "@/components/editor/canvas";
 
 interface CanvasRoomProps {
   projectId: string;
+  isTemplatesModalOpen: boolean;
+  onCloseTemplatesModal: () => void;
 }
 
 function CanvasLoading() {
@@ -27,13 +29,20 @@ function CanvasError() {
   );
 }
 
-export function CanvasRoom({ projectId }: CanvasRoomProps) {
+export function CanvasRoom({
+  projectId,
+  isTemplatesModalOpen,
+  onCloseTemplatesModal,
+}: CanvasRoomProps) {
   return (
     <LiveblocksProvider authEndpoint="/api/liveblocks-auth">
-      <RoomProvider id={projectId} initialPresence={{ cursor: null, isThinking: false }}>
+      <RoomProvider id={projectId} initialPresence={{ cursor: null, thinking: false }}>
         <ErrorBoundary fallback={<CanvasError />}>
           <ClientSideSuspense fallback={<CanvasLoading />}>
-            <Canvas />
+            <Canvas
+              isTemplatesModalOpen={isTemplatesModalOpen}
+              onCloseTemplatesModal={onCloseTemplatesModal}
+            />
           </ClientSideSuspense>
         </ErrorBoundary>
       </RoomProvider>

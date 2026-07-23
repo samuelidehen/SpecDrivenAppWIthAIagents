@@ -21,6 +21,7 @@ export function WorkspaceShell({
 }: WorkspaceShellProps) {
   const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
   const collaborators = useCollaborators({ projectId, isOwner });
 
   const openShareDialog = () => {
@@ -40,11 +41,16 @@ export function WorkspaceShell({
         isAiSidebarOpen={isAiSidebarOpen}
         onToggleAiSidebar={() => setIsAiSidebarOpen((open) => !open)}
         onOpenShare={openShareDialog}
+        onOpenTemplates={() => setIsTemplatesModalOpen(true)}
       />
 
       <div className="relative flex flex-1 overflow-hidden">
         <div className="flex-1 bg-base">
-          <CanvasRoom projectId={projectId} />
+          <CanvasRoom
+            projectId={projectId}
+            isTemplatesModalOpen={isTemplatesModalOpen}
+            onCloseTemplatesModal={() => setIsTemplatesModalOpen(false)}
+          />
         </div>
 
         <AiSidebar
