@@ -1,6 +1,6 @@
 "use client";
 
-import { Share2, Sparkles } from "lucide-react";
+import { LayoutTemplate, Share2, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -9,6 +9,7 @@ interface WorkspaceNavbarProps {
   isAiSidebarOpen: boolean;
   onToggleAiSidebar: () => void;
   onOpenShare: () => void;
+  onOpenTemplates: () => void;
 }
 
 export function WorkspaceNavbar({
@@ -16,6 +17,7 @@ export function WorkspaceNavbar({
   isAiSidebarOpen,
   onToggleAiSidebar,
   onOpenShare,
+  onOpenTemplates,
 }: WorkspaceNavbarProps) {
   return (
     <nav className="flex h-14 w-full shrink-0 items-center justify-between border-b border-surface-border bg-surface px-4">
@@ -24,6 +26,10 @@ export function WorkspaceNavbar({
       </h1>
 
       <div className="flex items-center gap-2">
+        <Button variant="ghost" size="sm" onClick={onOpenTemplates}>
+          <LayoutTemplate className="h-4 w-4" />
+          Templates
+        </Button>
         <Button variant="ghost" size="sm" onClick={onOpenShare}>
           <Share2 className="h-4 w-4" />
           Share
