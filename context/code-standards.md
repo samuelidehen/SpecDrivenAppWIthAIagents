@@ -44,7 +44,7 @@
 ## File Organization
 
 - `lib/` — shared infrastructure: Prisma client, auth helpers, utilities.
-- `trigger/` — all durable background tasks and AI workflows.
+- `src/trigger/` — all durable background tasks and AI workflows (path fixed by `trigger.config.ts`'s `dirs` setting).
 - `components/` — UI composition only; no business logic.
 - `app/api/` — route handlers for auth, triggering, and persistence.
 - Name files after the responsibility they contain, not the technology.

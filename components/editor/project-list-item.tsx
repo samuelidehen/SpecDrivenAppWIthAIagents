@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FolderKanban, Pencil, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -26,20 +27,25 @@ export function ProjectListItem({
         isActive && "bg-accent-dim"
       )}
     >
-      <FolderKanban
-        className={cn(
-          "h-4 w-4 shrink-0",
-          isActive ? "text-brand" : "text-copy-muted"
-        )}
-      />
-      <span
-        className={cn(
-          "flex-1 truncate text-sm",
-          isActive ? "text-brand" : "text-copy-primary"
-        )}
+      <Link
+        href={`/editor/${project.id}`}
+        className="flex min-w-0 flex-1 items-center gap-2"
       >
-        {project.name}
-      </span>
+        <FolderKanban
+          className={cn(
+            "h-4 w-4 shrink-0",
+            isActive ? "text-brand" : "text-copy-muted"
+          )}
+        />
+        <span
+          className={cn(
+            "flex-1 truncate text-sm",
+            isActive ? "text-brand" : "text-copy-primary"
+          )}
+        >
+          {project.name}
+        </span>
+      </Link>
       {project.role === "owner" && (
         <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
           <Button

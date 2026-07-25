@@ -7,6 +7,7 @@ import { CanvasRoom } from "@/components/editor/canvas-room";
 import { ShareDialog } from "@/components/editor/share-dialog";
 import { WorkspaceNavbar } from "@/components/editor/workspace-navbar";
 import { useCollaborators } from "@/hooks/use-collaborators";
+import type { SaveStatus } from "@/hooks/use-canvas-autosave";
 
 interface WorkspaceShellProps {
   projectId: string;
@@ -22,6 +23,7 @@ export function WorkspaceShell({
   const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const collaborators = useCollaborators({ projectId, isOwner });
 
   const openShareDialog = () => {
@@ -38,6 +40,7 @@ export function WorkspaceShell({
     <div className="flex h-full flex-col">
       <WorkspaceNavbar
         projectName={projectName}
+        saveStatus={saveStatus}
         isAiSidebarOpen={isAiSidebarOpen}
         onToggleAiSidebar={() => setIsAiSidebarOpen((open) => !open)}
         onOpenShare={openShareDialog}
@@ -50,13 +53,17 @@ export function WorkspaceShell({
             projectId={projectId}
             isTemplatesModalOpen={isTemplatesModalOpen}
             onCloseTemplatesModal={() => setIsTemplatesModalOpen(false)}
-          />
+            onSaveStatusChange={setSaveStatus}
+          >
+            {/* Rendered inside the same Liveblocks room as the canvas so it can
+                read the shared ai-status-feed and presence — see canvas-room.tsx. */}
+            <AiSidebar
+              projectId={projectId}
+              isOpen={isAiSidebarOpen}
+              onClose={() => setIsAiSidebarOpen(false)}
+            />
+          </CanvasRoom>
         </div>
-
-        <AiSidebar
-          isOpen={isAiSidebarOpen}
-          onClose={() => setIsAiSidebarOpen(false)}
-        />
       </div>
 
       <ShareDialog
