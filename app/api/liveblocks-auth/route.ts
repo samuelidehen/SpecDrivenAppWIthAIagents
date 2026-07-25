@@ -1,6 +1,7 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
+import { ensureAiChatFeed } from "@/lib/ai-chat";
 import { badRequest, forbidden, unauthorized } from "@/lib/api-response";
 import { cursorColorForUser, liveblocks } from "@/lib/liveblocks";
 import { prisma } from "@/lib/prisma";
@@ -25,6 +26,7 @@ export async function POST(request: NextRequest) {
   }
 
   await liveblocks.getOrCreateRoom(room, { defaultAccesses: [] });
+  await ensureAiChatFeed(room);
 
   const session = liveblocks.prepareSession(user.id, {
     userInfo: {

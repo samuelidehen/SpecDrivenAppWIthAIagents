@@ -1,16 +1,29 @@
 "use client";
 
-import { X } from "lucide-react";
+import { Bot, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AiArchitectTab } from "@/components/editor/ai-architect-tab";
+import { SpecsTab } from "@/components/editor/specs-tab";
+import { useAiStatusFeed } from "@/hooks/use-ai-status-feed";
 import { cn } from "@/lib/utils";
 
 interface AiSidebarProps {
+  projectId: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function AiSidebar({ isOpen, onClose }: AiSidebarProps) {
+const ACTIVE_TAB_CLASS =
+  "data-[state=active]:bg-accent-dim data-[state=active]:text-brand text-copy-muted";
+
+export function AiSidebar({ projectId, isOpen, onClose }: AiSidebarProps) {
+  // Shared with everyone in the room — the same ai-status-feed event the
+  // canvas's AiStatusBanner subscribes to, so "AI is working" is visible
+  // whether or not the sidebar happens to be open.
+  const aiStatus = useAiStatusFeed();
+
   return (
     <aside
       className={cn(
@@ -20,9 +33,15 @@ export function AiSidebar({ isOpen, onClose }: AiSidebarProps) {
       aria-hidden={!isOpen}
     >
       <div className="flex items-center justify-between border-b border-surface-border px-4 py-3">
-        <h2 className="text-sm font-semibold text-copy-primary">
-          AI Assistant
-        </h2>
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-dim text-brand">
+            <Bot className="h-4 w-4" />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold text-copy-primary">AI Workspace</h2>
+            <p className="text-xs text-copy-muted">Collaborate with Ghost AI</p>
+          </div>
+        </div>
         <Button
           variant="ghost"
           size="icon-sm"
@@ -33,9 +52,24 @@ export function AiSidebar({ isOpen, onClose }: AiSidebarProps) {
         </Button>
       </div>
 
-      <div className="flex flex-1 items-center justify-center px-4 text-center text-sm text-copy-muted">
-        AI chat coming soon.
-      </div>
+      <Tabs defaultValue="architect" className="flex flex-1 flex-col overflow-hidden px-3 pt-3">
+        <TabsList className="w-full">
+          <TabsTrigger value="architect" className={cn("flex-1", ACTIVE_TAB_CLASS)}>
+            AI Architect
+          </TabsTrigger>
+          <TabsTrigger value="specs" className={cn("flex-1", ACTIVE_TAB_CLASS)}>
+            Specs
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="architect" className="flex flex-1 flex-col overflow-hidden">
+          <AiArchitectTab projectId={projectId} statusText={aiStatus.text} />
+        </TabsContent>
+
+        <TabsContent value="specs" className="flex-1 overflow-y-auto">
+          <SpecsTab projectId={projectId} />
+        </TabsContent>
+      </Tabs>
     </aside>
   );
 }

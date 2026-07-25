@@ -4,11 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:trigger": "trigger dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.99",
     "@clerk/nextjs": "^7.5.19",
     "@clerk/ui": "^1.25.4",
     "@liveblocks/client": "^3.22.0",
@@ -18,7 +20,11 @@
     "@liveblocks/react-ui": "^3.22.0",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@trigger.dev/react-hooks": "^4.5.7",
+    "@trigger.dev/sdk": "^4.5.7",
+    "@vercel/blob": "^2.6.1",
     "@xyflow/react": "^12.11.2",
+    "ai": "^6.0.234",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
@@ -29,10 +35,13 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-error-boundary": "^6.1.2",
-    "tailwind-merge": "^3.6.0"
+    "react-markdown": "^10.1.0",
+    "tailwind-merge": "^3.6.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@trigger.dev/build": "^4.5.7",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",
     "@types/react": "^19",

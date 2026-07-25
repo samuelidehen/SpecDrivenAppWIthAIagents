@@ -3,7 +3,7 @@
 import "@xyflow/react/dist/style.css";
 import "@liveblocks/react-flow/styles.css";
 
-import { useCallback, useRef, type MouseEvent as ReactMouseEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 
 import { useCanRedo, useCanUndo, useMyPresence, useRedo, useUndo } from "@liveblocks/react";
 import { useLiveblocksFlow } from "@liveblocks/react-flow";
@@ -18,6 +18,7 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 
+import { AiStatusBanner } from "@/components/editor/ai-status-banner";
 import { CanvasControlBar } from "@/components/editor/canvas-control-bar";
 import { CanvasCursors } from "@/components/editor/canvas-cursors";
 import { CanvasEdgeRenderer } from "@/components/editor/canvas-edge";
@@ -28,6 +29,7 @@ import { PresenceBar } from "@/components/editor/presence-bar";
 import { ShapeToolbar } from "@/components/editor/shape-toolbar";
 import { StarterTemplatesModal } from "@/components/editor/starter-templates-modal";
 import type { CanvasTemplate } from "@/components/editor/starter-templates";
+import { useCanvasAutosave, type SaveStatus } from "@/hooks/use-canvas-autosave";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { SHAPE_DRAG_MIME_TYPE, type ShapeDragPayload } from "@/lib/shapes";
 import {
@@ -48,11 +50,18 @@ const defaultEdgeOptions = {
 };
 
 interface CanvasFlowProps {
+  projectId: string;
   isTemplatesModalOpen: boolean;
   onCloseTemplatesModal: () => void;
+  onSaveStatusChange: (status: SaveStatus) => void;
 }
 
-function CanvasFlow({ isTemplatesModalOpen, onCloseTemplatesModal }: CanvasFlowProps) {
+function CanvasFlow({
+  projectId,
+  isTemplatesModalOpen,
+  onCloseTemplatesModal,
+  onSaveStatusChange,
+}: CanvasFlowProps) {
   const reactFlowInstance = useReactFlow();
   const { screenToFlowPosition } = reactFlowInstance;
   const nodeCounter = useRef(0);
@@ -63,6 +72,44 @@ function CanvasFlow({ isTemplatesModalOpen, onCloseTemplatesModal }: CanvasFlowP
       nodes: { initial: [] },
       edges: { initial: [] },
     });
+
+  // The Liveblocks room may already hold nodes/edges from active collaborators
+  // by the time this mounts (useLiveblocksFlow's suspense resolves after
+  // storage loads) — only load the saved canvas snapshot into an empty room.
+  const [isCanvasLoaded, setIsCanvasLoaded] = useState(
+    () => nodes.length > 0 || edges.length > 0
+  );
+  const hasCheckedInitialLoad = useRef(false);
+
+  useEffect(() => {
+    // hasCheckedInitialLoad (not just isCanvasLoaded) guards this so the fetch
+    // only ever starts once per mount, even if onNodesChange/onEdgesChange's
+    // identity changes and re-triggers the effect while the fetch is in flight.
+    if (hasCheckedInitialLoad.current || isCanvasLoaded) return;
+    hasCheckedInitialLoad.current = true;
+
+    fetch(`/api/projects/${projectId}/canvas`)
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: { nodes?: CanvasNode[]; edges?: CanvasEdge[] } | null) => {
+        if (!data) return;
+
+        if (data.nodes?.length) {
+          onNodesChange(data.nodes.map((node) => ({ type: "add" as const, item: node })));
+        }
+        if (data.edges?.length) {
+          onEdgesChange(data.edges.map((edge) => ({ type: "add" as const, item: edge })));
+        }
+      })
+      .finally(() => {
+        setIsCanvasLoaded(true);
+      });
+  }, [projectId, isCanvasLoaded, onNodesChange, onEdgesChange]);
+
+  const saveStatus = useCanvasAutosave({ projectId, nodes, edges, enabled: isCanvasLoaded });
+
+  useEffect(() => {
+    onSaveStatusChange(saveStatus);
+  }, [saveStatus, onSaveStatusChange]);
 
   const undo = useUndo();
   const redo = useRedo();
@@ -201,6 +248,7 @@ function CanvasFlow({ isTemplatesModalOpen, onCloseTemplatesModal }: CanvasFlowP
       </CanvasNodeActionsProvider>
 
       <PresenceBar />
+      <AiStatusBanner />
       <CanvasControlBar canUndo={canUndo} canRedo={canRedo} onUndo={undo} onRedo={redo} />
       <ShapeToolbar />
 
@@ -214,16 +262,25 @@ function CanvasFlow({ isTemplatesModalOpen, onCloseTemplatesModal }: CanvasFlowP
 }
 
 interface CanvasProps {
+  projectId: string;
   isTemplatesModalOpen: boolean;
   onCloseTemplatesModal: () => void;
+  onSaveStatusChange: (status: SaveStatus) => void;
 }
 
-export function Canvas({ isTemplatesModalOpen, onCloseTemplatesModal }: CanvasProps) {
+export function Canvas({
+  projectId,
+  isTemplatesModalOpen,
+  onCloseTemplatesModal,
+  onSaveStatusChange,
+}: CanvasProps) {
   return (
     <ReactFlowProvider>
       <CanvasFlow
+        projectId={projectId}
         isTemplatesModalOpen={isTemplatesModalOpen}
         onCloseTemplatesModal={onCloseTemplatesModal}
+        onSaveStatusChange={onSaveStatusChange}
       />
     </ReactFlowProvider>
   );

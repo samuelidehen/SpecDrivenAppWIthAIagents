@@ -2,6 +2,7 @@
 
 import { useOthers } from "@liveblocks/react";
 import { ViewportPortal } from "@xyflow/react";
+import { Loader2 } from "lucide-react";
 
 export function CanvasCursors() {
   const others = useOthers();
@@ -13,6 +14,7 @@ export function CanvasCursors() {
         if (!cursor) return null;
 
         const { name, color } = other.info;
+        const isThinking = other.presence.thinking === true;
 
         return (
           <div
@@ -30,9 +32,10 @@ export function CanvasCursors() {
               />
             </svg>
             <div
-              className="ml-4 -mt-1 w-max rounded-full px-2 py-0.5 text-xs font-medium text-white shadow"
+              className="ml-4 -mt-1 flex w-max items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium text-white shadow"
               style={{ backgroundColor: color }}
             >
+              {isThinking ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
               {name}
             </div>
           </div>
