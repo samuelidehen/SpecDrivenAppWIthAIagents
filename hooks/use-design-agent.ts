@@ -7,6 +7,14 @@ import { useRealtimeRun } from "@trigger.dev/react-hooks";
 import { startDesignRun } from "@/lib/design-agent-client";
 import type { designAgentTask } from "@/src/trigger/design-agent";
 
+// designAgentTask's own maxDuration (see src/trigger/design-agent.ts) bounds
+// how long a run can take once it starts executing — Trigger.dev fails the
+// run itself past that. This watchdog covers what maxDuration can't: a run
+// that never starts (stuck QUEUED, e.g. no worker attached) or a realtime
+// subscription that silently drops, either of which would otherwise spin
+// isRunning forever with no error surfaced.
+const STALE_RUN_TIMEOUT_MS = 200_000;
+
 export interface UseDesignAgentOptions {
   projectId: string;
   // Called with a human-readable summary once the run finishes — on success
@@ -60,6 +68,20 @@ export function useDesignAgent({ projectId, onFinished }: UseDesignAgentOptions)
       );
     },
   });
+
+  useEffect(() => {
+    if (!runId) return;
+
+    const timer = setTimeout(() => {
+      setRunId(undefined);
+      setPublicToken(undefined);
+      onFinishedRef.current(
+        "This design run is taking much longer than expected and may be stuck. Please try again."
+      );
+    }, STALE_RUN_TIMEOUT_MS);
+
+    return () => clearTimeout(timer);
+  }, [runId]);
 
   const submit = useCallback(
     async (prompt: string) => {
