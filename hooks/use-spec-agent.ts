@@ -8,6 +8,10 @@ import { startSpecRun } from "@/lib/spec-agent-client";
 import type { generateSpecTask } from "@/src/trigger/generate-spec";
 import type { AiChatMessage } from "@/types/tasks";
 
+// See use-design-agent.ts's STALE_RUN_TIMEOUT_MS — same rationale, mirrored
+// here since generateSpecTask has the same maxDuration (180s).
+const STALE_RUN_TIMEOUT_MS = 200_000;
+
 export interface UseSpecAgentOptions {
   projectId: string;
   // Called with a human-readable summary once the run finishes — on success
@@ -57,6 +61,20 @@ export function useSpecAgent({ projectId, onFinished }: UseSpecAgentOptions): Us
       onFinishedRef.current("Spec generated — see the Specs tab to view or download it.");
     },
   });
+
+  useEffect(() => {
+    if (!runId) return;
+
+    const timer = setTimeout(() => {
+      setRunId(undefined);
+      setPublicToken(undefined);
+      onFinishedRef.current(
+        "This spec run is taking much longer than expected and may be stuck. Please try again."
+      );
+    }, STALE_RUN_TIMEOUT_MS);
+
+    return () => clearTimeout(timer);
+  }, [runId]);
 
   const submit = useCallback(
     async (chatHistory: AiChatMessage[]) => {
