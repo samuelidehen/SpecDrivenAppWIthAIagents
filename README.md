@@ -1,3 +1,14 @@
+
+Visit Life app Deployed on Vercel on this Url:
+
+https://spec-driven-app-w-ith-a-iagents-7bf.vercel.app/
+
+
+
+
+
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
